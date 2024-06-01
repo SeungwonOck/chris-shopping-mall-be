@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const indexRouter = require("./routes/index")
+require('dotenv').config()
 const app = express();
 
-require('dotenv').config()
 const MONGODB_URI_PROD = process.env.MONGODB_URI_PROD
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
