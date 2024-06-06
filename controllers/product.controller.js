@@ -28,7 +28,7 @@ productController.getProducts = async (req, res) => {
     try {
         const { page, name } = req.query;
         const cond = name ? { name: { $regex: name, $options: "i" } } : {}
-        let query = Product.findOne(cond)
+        let query = Product.find(cond)
         let response = { status: "success" }
         if (page) {
             query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
