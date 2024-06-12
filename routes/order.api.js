@@ -9,4 +9,10 @@ router.get("/", authController.authenticate, orderController.getOrderList)
 
 router.post("/", authController.authenticate, orderController.createOrder)
 
+router.put(
+    "/:id",
+    authController.authenticate,
+    authController.checkAdminPermission,
+    orderController.updateOrder
+)
 module.exports = router;
