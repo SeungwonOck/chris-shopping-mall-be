@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./User');
 const Product = require('./Product');
+const Cart = require('./Cart');
 const Schema = mongoose.Schema;
 const orderSchema = new Schema(
     {
@@ -18,7 +19,7 @@ const orderSchema = new Schema(
         }]
         
     },
-    { timeStamps: true }
+    { timestamps: true }
 )
 
 orderSchema.methods.toJSON = function () {
@@ -27,6 +28,13 @@ orderSchema.methods.toJSON = function () {
     delete obj.updatedAt
     return obj
 }
+
+orderSchema.post("save", async function () {
+    //Empty the Cart
+    const cart = await Cart.findOne({ userid: this.userId })
+    cart.items = []
+    await cart.save()
+})
 
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;

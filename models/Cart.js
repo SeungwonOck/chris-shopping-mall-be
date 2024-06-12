@@ -11,7 +11,7 @@ const cartSchema = new Schema(
             qty: { type: Number, default: 1, required: true}
         }]
     },
-    { timeStamps: true }
+    { timestamps: true }
 )
 
 cartSchema.methods.toJSON = function () {

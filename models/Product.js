@@ -12,7 +12,7 @@ const productSchema = new Schema(
         status: { type: String, default: 'active' },
         isDeleted: { type: Boolean, default: false }
     },
-    { timeStamps: true }
+    { timestamps: true }
 )
 
 productSchema.methods.toJSON = function () {

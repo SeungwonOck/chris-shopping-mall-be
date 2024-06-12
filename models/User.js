@@ -9,7 +9,7 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     name: { type: String, required: true },
     level: { type: String, default: 'customer'}
-}, { timeStamps: true })
+}, { timestamps: true })
 
 userSchema.methods.toJSON = function () {
     const obj = this._doc
