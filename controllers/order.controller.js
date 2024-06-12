@@ -14,9 +14,11 @@ orderController.createOrder = async (req, res) => {
 
         // 재고가 충분하지 않는 아이템이 있었다 => 에러
         if (insufficientStockItems.length > 0) {
-            const errorMessage = insufficientStockItems.reduce((total, item) => total += item.message, "")
+            const errorMessage = insufficientStockItems.map((item) => item.message).join(" ");
             throw new Error(errorMessage)
         }
+
+        await productController.deductItemStock(orderList);
         // order 만들기
         const newOrder = new Order({
             userId,

@@ -95,7 +95,7 @@ productController.deleteProduct = async (req, res) => {
     }
 }
 
-productController.checkStock = async (item) => {
+/* productController.checkStock = async (item) => {
     //내가 사려는 아이템 재고 정보 들고 오기
     const product = await Product.findById(item.productId)
     //내가 사려는 아이템 qty, 재고 비교
@@ -111,23 +111,56 @@ productController.checkStock = async (item) => {
     await product.save()
     //충분하다면, 재고에서 - qty 성공
     return {isVerify: true}
-}
+} */
 
 productController.checkItemListStock = async (itemList) => {
-    const insufficientStockItems = []
-    //재고 확인 로직
-    //비동기 처리를 동시에 처리해준다
+  try {
+    const products = await Product.find({
+      _id: { $in: itemList.map((item) => item.productId) },
+    });
+
+    const productMap = products.reduce((map, product) => {
+      map[product._id] = product;
+      return map;
+    }, {});
+
+    const insufficientStockItems = itemList
+      .filter((item) => {
+        const product = productMap[item.productId];
+        return product.stock[item.size] < item.qty;
+      })
+      .map((item) => {
+        return {
+          item,
+          message: `${productMap[item.productId].name}is out of stock ${
+            item.size
+          }`,
+        };
+      });
+
+    return insufficientStockItems;
+  } catch (error) {
+    throw new Error("An error occurred while checking the stock.");
+  }
+};
+
+productController.deductItemStock = async (itemList) => {
+  try {
     await Promise.all(
-        itemList.map(async (item) => {
-            const stockCheck = await productController.checkStock(item)
-        if (!stockCheck.isVerify) {
-            insufficientStockItems.push({item, message: stockCheck.message})
+      itemList.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          throw new Error(
+            `Unable to find product corresponding to ID: ${item.productId}`
+          );
         }
-        return stockCheck
-        })
-    )
-    
-    return insufficientStockItems
-}
+        product.stock[item.size] -= item.qty;
+        return product.save();
+      })
+    );
+  } catch (error) {
+    throw new Error("Product stock update failed.");
+  }
+};
 
 module.exports = productController;
