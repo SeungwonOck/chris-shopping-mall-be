@@ -36,7 +36,6 @@ authController.loginWithGoogle = async (req, res) => {
         })
 
         const { email, name } = ticket.getPayload()
-        console.log("eeeee", email, name);
         let user = await User.findOne({ email })
         if (!user) {
             //Create New User

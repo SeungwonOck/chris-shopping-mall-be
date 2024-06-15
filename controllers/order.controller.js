@@ -1,3 +1,4 @@
+const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const {randomStringGenerator} = require("../utils/randomStringGenerator")
 const productController = require('./product.controller');
@@ -10,6 +11,9 @@ orderController.createOrder = async (req, res) => {
         //프론트에서 데이터 보낸거 받아오기 userId, totalPrice, contact, orderList
         const { userId } = req
         const { shipTo, contact, totalPrice, orderList } = req.body
+         if (!userId || !shipTo || !contact || !totalPrice || !orderList) {
+            throw new Error("Missing required fields");
+        }
         //재고 확인 & 재고 업데이트
         const insufficientStockItems = await productController.checkItemListStock(orderList)
 
@@ -31,9 +35,17 @@ orderController.createOrder = async (req, res) => {
         });
 
         await newOrder.save()
+
+        const cart = await Cart.findOne({ userId });
+        if (cart) {
+            cart.items = [];
+            await cart.save();
+        }
+        
         res.status(200).json({status: "success", orderNum: newOrder.orderNum})
 
     } catch (error) {
+        console.error("This is error: ", error);
         res.status(400).json({status: "fail", error: error.message})
     }
 }

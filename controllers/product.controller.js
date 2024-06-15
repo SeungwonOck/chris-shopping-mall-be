@@ -146,19 +146,27 @@ productController.checkItemListStock = async (itemList) => {
 
 productController.deductItemStock = async (itemList) => {
   try {
-    await Promise.all(
-      itemList.map(async (item) => {
-        const product = await Product.findById(item.productId);
-        if (!product) {
-          throw new Error(
-            `Unable to find product corresponding to ID: ${item.productId}`
-          );
-        }
-        product.stock[item.size] -= item.qty;
-        return product.save();
-      })
-    );
+    for (const item of itemList) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(
+          `Unable to find product corresponding to ID: ${item.productId}`
+        );
+      }
+      const newStock = { ...product.stock };
+      newStock[item.size] -= item.qty;
+      product.stock = newStock;
+
+      try {
+        const savedProduct = await product.save();
+        console.log("Product saved successfully: ", savedProduct)
+      } catch (error) {
+        console.error("Error saving product: ", error);
+        throw new Error("Failed to save product.");
+      }
+}      
   } catch (error) {
+    console.error("Overall error during stock update: ", error)
     throw new Error("Product stock update failed.");
   }
 };
