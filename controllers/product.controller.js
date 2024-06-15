@@ -26,8 +26,12 @@ productController.createProduct = async (req, res) => {
 
 productController.getProducts = async (req, res) => {
     try {
-        const { page, name } = req.query;
-        const cond = name ? { name: { $regex: name, $options: "i" }, isDeleted: false } : { isDeleted: false}
+      const { page, name, menu } = req.query;
+      const cond = {
+        ...name && { name: { $regex: name, $options: "i" } },
+        isDeleted: false,
+        ...(menu && menu.toLowerCase() !== "all" && { category: menu.toLowerCase() })
+      }
         let query = Product.find(cond)
         let response = { status: "success" }
         if (page) {
@@ -38,21 +42,12 @@ productController.getProducts = async (req, res) => {
             response.totalPageNum = totalPageNum;
         }
         const productList = await query.exec()
-        response.data = productList
+        response.data = productList;
+        response.menu = menu;
         res.status(200).json(response)
     } catch (error) {
         res.status(400).json({ status: "fail", error: error.message })
     }
-}
-
-productController.getProductsByCategory = async (req, res) => {
-  try {
-    const category = req.params.category;
-    const products = await Product.find({ category })
-    res.status(200).json({status: "success", data: products})
-  } catch (error) {
-    res.status(400).json({status: "fail", error: error.message})
-  }
 }
 
 productController.getProductById = async (req, res) => {
