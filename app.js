@@ -18,7 +18,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true } )
     .then(() => console.log("mongoose connected"))
     .catch((err) => console.log("DB Connection fail", err));
 
-//포트 열어주기
+//Opening a port
 app.listen(process.env.PORT || 5000, () => {
     console.log("Server is running on port 5000");
 })

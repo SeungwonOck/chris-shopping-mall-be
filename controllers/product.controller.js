@@ -45,6 +45,16 @@ productController.getProducts = async (req, res) => {
     }
 }
 
+productController.getProductsByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+    const products = await Product.find({ category })
+    res.status(200).json({status: "success", data: products})
+  } catch (error) {
+    res.status(400).json({status: "fail", error: error.message})
+  }
+}
+
 productController.getProductById = async (req, res) => {
     try {
         const productId = req.params.id;
